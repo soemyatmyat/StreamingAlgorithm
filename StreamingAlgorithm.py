@@ -1,13 +1,3 @@
-##########################################################################
-## streamingCSE545sp22_lastname_id.py  v1
-## 
-## Template code for assignment 1 part 1. 
-## Do not edit anywhere except blocks where a #[TODO]# appears
-##
-## Student Name: Soe Myat Myat
-## Student ID: 
-
-
 import sys
 from pprint import pprint
 from random import random
@@ -84,9 +74,6 @@ def task1BMedian(element, returnResult = True):
     else:
         memory1b.appendleft(1)
 
-    #print(memory1b)
-
-
     if returnResult: #when the stream is requesting the current result
         result = 0
         #[TODO]#
@@ -96,8 +83,6 @@ def task1BMedian(element, returnResult = True):
     else: #no need to return a result
         pass
     
-
-# memory1c =  deque([None] * MEMORY_SIZE, maxlen=MEMORY_SIZE) #do not edit
 memory1c =  deque([None] * MEMORY_SIZE, maxlen=MEMORY_SIZE) #do not edit
 
 
@@ -116,23 +101,41 @@ def task1CMostFreqValue(element, returnResult = True):
                 found = True 
                 break
         
-
     if (found == False): # if the element does not exist in the memory1c, add it along with its count which is 1.
-        memory1c.append(element) # this method will pop the first element in deque and its count in memory1c <== any ways to check if first element should be pop out?
-        memory1c.append(1)
-        
+        ###################################################################### 
+        ##   Precaution to check if we are popping the high seen value pair 
+        ###################################################################### 
+        storeValue = memory1c[0]
+        storeCount = memory1c[1]
+        n = 50 # to keep track of how many rounds of loops we have already completed (50 paris in memory1c)
+        minCount = 1 # assuming minium seen count would be 1 in the memory1c 
+        while (storeCount is not None and storeCount != minCount): # if it's not minimum Count 
+            n -= 1 
+            memory1c.append(memory1c.popleft()) # put them into the back of the array
+            memory1c.append(memory1c.popleft())
+            storeValue = memory1c[0]
+            storeCount = memory1c[1]
+            if (n == 0): # if n become 0, we have completed a round of loop in the memory1c
+                minCount += 1 # minimum count would have to increase by 1 now 
+                n = 50 # reset n 
 
+        memory1c.append(element) # this will pop the first element in deque and its count in memory1c
+        memory1c.append(1) 
     else: 
         for i in range(1, len(memory1c), 2): # loop through memory1c to decrease the counter by 1 <== we have limited space/slots (50 slots max), so, we will remove those unfrequently seen elements
             if memory1c[i] is not None:
                 memory1c[i] -= 1 # decrease all the elements counter by 1 
+
         for i in range(0, 100): # check if any elements has counter = zero and remove them 
             storeValue = memory1c.popleft() 
             storeCount = memory1c.popleft() 
-            if (storeCount != 0): # it's not zero, add them back 
+            if (storeCount is not None and storeCount != 0): # it's not zero, add them back 
                 memory1c.append(storeValue)
                 memory1c.append(storeCount)
- 
+            else: 
+                memory1c.append(None)
+                memory1c.append(None)
+
     if returnResult: #when the stream is requesting the current result
         result = 0
         #[TODO]#
@@ -190,11 +193,6 @@ if __name__ == "__main__": #[Uncomment peices to test]
                 print("   1C: Most frequent value: %d" % int(result1c))
                 print(" [current memory sizes: A: %d, B: %d, C: %d]\n" % \
                     (getMemorySize(memory1a), getMemorySize(memory1b), getMemorySize(memory1c)))
-                
-                #### delete later 
-                print("\n", memory1c)
-                print("\n")
-                #### delete later
 
             else: #just pass for stream processing
                 result1a = task1ADistinctValues(element, False)
